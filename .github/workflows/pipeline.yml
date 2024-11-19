@@ -1,0 +1,31 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies, lint and test client
+        run: |
+          cd client
+          npm install
+          npm run lint
+          npm run test
+
+      - name: Install dependencies and test server
+        run: |
+          cd server
+          npm install
+          npm run test
