@@ -13,6 +13,12 @@ const app = express()
 
 const mongoUrl = config.MONGODB_URI;
 mongoose.connect(mongoUrl)
+  .then(()=>{
+    console.log("Connected to the database");
+  })
+  .catch(err => {
+    console.log("Error connecting to the database", err);
+  });
 
 app.use(cors())
 app.use(express.json())
