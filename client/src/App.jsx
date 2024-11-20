@@ -112,7 +112,7 @@ const App = () => {
       {
         !user &&
         <>
-          <h2>log in to application</h2>
+          <h2>Log in to application</h2>
           <LoginForm login={handleLogin} />
         </>
       }
