@@ -12,7 +12,7 @@ jobs:
       - name: Check the deployed service URL
         uses: jtalk/url-health-check-action@v4
         with:
-          url: https://server-rough-haze-1098.fly.dev//health
+          url: https://server-rough-haze-1098.fly.dev/health
       - name: Notify Discord success
         if: ${{ success() }}
         run: |
