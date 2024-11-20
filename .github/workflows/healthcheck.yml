@@ -1,0 +1,50 @@
+name: Periodic health check
+
+#on:
+#  schedule:
+#    - cron: "*/15 * * * *"
+on: workflow_dispatch # Run only manually for now
+
+jobs:
+  health_check:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check the deployed service URL
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: https://server-rough-haze-1098.fly.dev//health
+      - name: Notify Discord success
+        if: ${{ success() }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+                "username": "Bloglist GitHub Actions Pipeline",
+                "embeds": [
+                  {
+                    "title": "Periodic health check passed for Bloglist app",
+                    "color": 65280,
+                    "footer": {
+                      "text": "Severity: Informational"
+                    }
+                  }
+                ]
+              }' \
+            ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Notify Discord failure
+        if: ${{ failure() }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+                "username": "Bloglist GitHub Actions Pipeline",
+                "avatar_url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
+                "embeds": [
+                  {
+                    "title": "Periodic health check failed for Bloglist app",
+                    "color": 16711680,
+                    "footer": {
+                      "text": "Severity: Error"
+                    }
+                  }
+                ]
+              }' \
+            ${{ secrets.DISCORD_WEBHOOK }}
