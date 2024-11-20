@@ -24,11 +24,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies, lint and test client
+      - name: Install dependencies, lint, build and test client
         run: |
           cd client
           npm ci
           npm run lint
+          npm run build
           npm run test
 
       - name: Install dependencies and test server
@@ -40,13 +41,9 @@ jobs:
       - name: Install Playwright Chromium Browser
         run: npx playwright install --with-deps chromium
       - name: Run E2E tests
-        env:
-          NODE_ENV: test
         run: |
-          cd server
-          npm run start:test &
-          cd ../client
-          npx playwright test
+          cd client
+          npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

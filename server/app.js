@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path');
 require('express-async-errors')
 const cors = require('cors')
 const mongoose = require('mongoose')
@@ -10,6 +11,8 @@ const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 
 const app = express()
+
+app.use(express.static(path.join(__dirname, 'dist')));
 
 const mongoUrl = config.MONGODB_URI;
 mongoose.connect(mongoUrl)

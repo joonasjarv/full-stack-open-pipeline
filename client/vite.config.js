@@ -21,5 +21,8 @@ export default defineConfig({
       ...configDefaults.exclude,
       'e2e-tests/*'
     ]
-  }
+  },
+  build: {
+    outDir: '../server/dist',
+  },
 });
