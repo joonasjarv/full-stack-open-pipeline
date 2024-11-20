@@ -72,3 +72,57 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           WITH_V: true
+
+  notify_discord_on_success:
+    runs-on: ubuntu-latest
+    needs: [deployment_pipeline, tag_release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Store timestamp
+        run: echo "TIMESTAMP=$(TZ='Europe/Helsinki' date +'%T')" >> $GITHUB_ENV
+      - run: git fetch --prune --unshallow --tag
+      - name: Get latest tag
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Notify Discord success
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+                "username": "Bloglist GitHub Actions Pipeline",
+                "embeds": [
+                  {
+                    "title": "A new version of Bloglist app has been deployed",
+                    "description": "by ${{ github.actor }}. Version: ${{ env.LATEST_TAG }}",
+                    "color": 65280,
+                    "footer": {
+                      "text": "Severity: Informational | Time: ${{ env.TIMESTAMP }}"
+                    }
+                  }
+                ]
+              }' \
+            ${{ secrets.DISCORD_WEBHOOK }}
+
+  notify_discord_on_failure:
+    runs-on: ubuntu-latest
+    needs: deployment_pipeline
+    if: ${{ failure() && github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Store timestamp
+        run: echo "TIMESTAMP=$(TZ='Europe/Helsinki' date +'%T')" >> $GITHUB_ENV
+      - name: Notify Discord failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+                "username": "Bloglist GitHub Actions Pipeline",
+                "embeds": [
+                  {
+                    "title": "Build failed for Bloglist app",
+                    "description": "commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) by ${{ github.actor }} broke the build.",
+                    "color": 16711680,
+                    "footer": {
+                      "text": "Severity: Error | Time: ${{ env.TIMESTAMP }}"
+                    }
+                  }
+                ]
+              }' \
+            ${{ secrets.DISCORD_WEBHOOK }}
